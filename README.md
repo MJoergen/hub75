@@ -10,6 +10,8 @@ follows the conventions in
 [qnice_cpu's CODING_STYLE.md](https://github.com/MJoergen/qnice_cpu/blob/main/CODING_STYLE.md);
 `vsg.yml` is that repository's, unmodified.
 
+Working notes for future sessions are in [CLAUDE.md](CLAUDE.md).
+
 ## Status
 
 | | |
