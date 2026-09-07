@@ -84,9 +84,13 @@ synth:
 	yosys -m ghdl -p 'ghdl --std=08 --workdir=$(BUILD) $(GENERICS) $(TOP); synth_xilinx -top $(TOP)' > $(BUILD)/yosys.log
 	@grep -A30 'Printing statistics' $(BUILD)/yosys.log | tail -25
 
+# -mode batch so that a failure exits non-zero instead of dropping into the
+# Vivado prompt; the log and journal go to $(BUILD) rather than the repo root.
 .PHONY: bit
 bit:
-	$(XILINX_DIR)/bin/vivado -mode tcl -source hw/build.tcl
+	mkdir -p $(BUILD)
+	$(XILINX_DIR)/bin/vivado -mode batch -source hw/build.tcl \
+	    -log $(BUILD)/vivado.log -journal $(BUILD)/vivado.jou
 
 
 #############################################################################

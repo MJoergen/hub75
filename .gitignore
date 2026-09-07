@@ -5,3 +5,6 @@ formal/hub75_scan/
 formal/*.stamp
 *.edif
 yosys.log
+*.jou
+vivado*.log
+.Xil/

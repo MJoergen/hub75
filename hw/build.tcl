@@ -2,12 +2,17 @@
 #
 # Run with:  make bit      (or: vivado -mode tcl -source hw/build.tcl)
 #
-# This has NOT been run: the machine this was written on has no Vivado
-# installed. The VHDL is verified by simulation and by SymbiYosys, and the
-# structure below follows the same shape as the qnice_cpu flow, but treat the
-# first run as something to watch rather than something to trust.
+# Written on a machine with no Vivado installed, so the VHDL is verified by
+# simulation and by SymbiYosys rather than by this flow. It has since been run:
+# synthesis, placement, phys_opt and routing all complete.
 
 set part xc7a100tcsg324-1
+
+# Vivado will not create an output directory for you, and every -file below
+# writes into this one. "make bit" creates it as well, so that the log and the
+# journal can be pointed here too; this line is what makes the script work when
+# it is sourced on its own.
+file mkdir build
 
 read_vhdl -vhdl2008 [glob src/*.vhd]
 read_xdc hw/nexys4ddr.xdc
