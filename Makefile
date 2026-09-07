@@ -94,5 +94,5 @@ bit:
 .PHONY: clean
 clean:
 	rm -rf $(BUILD)
-	rm -rf formal/hub75_scan_bmc formal/hub75_scan_cover
+	rm -rf formal/hub75_scan_bmc formal/hub75_scan_cover formal/hub75_scan
 	rm -f  *.edif *.log

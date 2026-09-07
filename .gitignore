@@ -1,6 +1,7 @@
 build/
 formal/*_bmc/
 formal/*_cover/
+formal/hub75_scan/
 formal/*.stamp
 *.edif
 yosys.log
