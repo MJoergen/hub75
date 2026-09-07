@@ -17,8 +17,25 @@ follows the conventions in
 | `make test` | **passes** — 96 latches over 2 frames, every pixel, row address and blanking interval checked |
 | `make formal` | **passes** — `bmc` and `cover`, 6 assertions and 3 cover statements |
 | `make lint` | **clean** — 0 errors, 0 warnings across all 8 files |
-| `make synth` | **builds** — 109 LUTs, 126 FFs, 37 CARRY4, 2 RAMB18E1, 0 problems (Yosys, flattened) |
-| `make bit` | **never run** — no Vivado on the machine this was written on |
+| `make synth` | **builds** — 0 problems (Yosys, flattened) |
+| `make bit` | **passes** — bitstream written, timing met (Vivado 2022.2) |
+
+Vivado 2022.2 on the `xc7a100tcsg324-1`, `-flatten_hierarchy rebuilt`, after
+place-and-route:
+
+| | |
+|---|---|
+| WNS | **+5.210 ns** on a 10 ns period, 0 failing endpoints of 329 |
+| WHS | +0.147 ns, 0 failing endpoints |
+| Critical path | `disp_len_reg[6]` → `col_reg[0]/CE`, 4.335 ns, 69% routing |
+| Slice LUTs | 88 of 63400 (0.14 %) |
+| Slice registers | 124 of 126800 (0.10 %) |
+| Block RAM | 1 tile of 135 — the two half-panel RAMs pack into one RAMB36 |
+| Bonded IOB | 16 — twelve panel signals, two LEDs, clock, reset |
+
+There is roughly twice the period in hand, so the shift clock is nowhere near
+being the constraint; `G_CLK_DIV` is set by what the panel will accept, not by
+what the FPGA can do.
 
 Measured refresh at the default settings: **879 us per frame, 1137 Hz**, against
 the 300 Hz these panels are specified for.

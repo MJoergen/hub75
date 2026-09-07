@@ -13,6 +13,12 @@
 ## DO NOT drive the panel straight from these pins. See the note in
 ## src/top_nexys4ddr.vhd: put a 74AHCT245 in between.
 
+## Configuration bank 0 properties. Without these, write_bitstream emits
+## DRC CFGBVS-1: it cannot work out the I/O voltage support for bank 0. The
+## Nexys 4 DDR ties that bank to 3.3 V.
+set_property CFGBVS VCCO        [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+
 ## Clock: 100 MHz
 set_property -dict { PACKAGE_PIN E3  IOSTANDARD LVCMOS33 } [get_ports { clk_i }]
 create_clock -add -name sys_clk -period 10.000 -waveform {0 5.000} [get_ports { clk_i }]
