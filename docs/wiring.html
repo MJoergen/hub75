@@ -1,0 +1,782 @@
+<title>Nexys 4 DDR to HUB75</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground:    #f4f2ee;
+    --surface:   #fbfaf8;
+    --sunk:      #e9e6e0;
+    --ink:       #191816;
+    --ink-2:     #55524c;
+    --ink-3:     #83807a;
+    --rule:      #d3cfc7;
+    --rule-soft: #e3dfd8;
+
+    --accent:    #1f6b5c;
+    --sig-data:  #b0344f;
+    --sig-addr:  #2a6c8c;
+    --sig-ctrl:  #a86c14;
+    --sig-gnd:   #5a5d55;
+    --sig-pwr:   #c0392b;
+
+    --warn-bg:   #f7ece6;
+    --warn-edge: #dcae99;
+
+    --f-display: "Chivo", "Helvetica Neue", Arial, sans-serif;
+    --f-body:    "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+    --col: 36rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #161513;
+      --surface:   #1d1c19;
+      --sunk:      #100f0d;
+      --ink:       #eceae5;
+      --ink-2:     #b2aea6;
+      --ink-3:     #86827a;
+      --rule:      #35332e;
+      --rule-soft: #282621;
+
+      --accent:    #63b8a5;
+      --sig-data:  #e58398;
+      --sig-addr:  #6fb4d4;
+      --sig-ctrl:  #d9a44e;
+      --sig-gnd:   #a0a49a;
+      --sig-pwr:   #e8776a;
+
+      --warn-bg:   #261914;
+      --warn-edge: #6b4436;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #161513;
+    --surface:   #1d1c19;
+    --sunk:      #100f0d;
+    --ink:       #eceae5;
+    --ink-2:     #b2aea6;
+    --ink-3:     #86827a;
+    --rule:      #35332e;
+    --rule-soft: #282621;
+
+    --accent:    #63b8a5;
+    --sig-data:  #e58398;
+    --sig-addr:  #6fb4d4;
+    --sig-ctrl:  #d9a44e;
+    --sig-gnd:   #a0a49a;
+    --sig-pwr:   #e8776a;
+
+    --warn-bg:   #261914;
+    --warn-edge: #6b4436;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 64rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+  /* masthead */
+  .masthead { padding: 3.5rem 0 1.5rem; border-bottom: 3px solid var(--ink); }
+
+  .kicker {
+    font-family: var(--f-mono);
+    font-size: 0.72rem; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0 0 0.9rem;
+  }
+
+  h1 {
+    font-family: var(--f-display); font-weight: 700;
+    font-size: clamp(2rem, 5.5vw, 3.1rem);
+    line-height: 1.03; letter-spacing: -0.02em;
+    text-wrap: balance; margin: 0;
+  }
+
+  .dek { max-width: var(--col); color: var(--ink-2); font-size: 1.03rem; margin: 0.9rem 0 0; }
+
+  .chain {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+    margin: 1.5rem 0 0; padding: 0; list-style: none;
+    font-family: var(--f-mono); font-size: 0.76rem;
+  }
+  .chain li { background: var(--sunk); padding: 0.3rem 0.6rem; border-radius: 2px; }
+  .chain .arrow { background: none; color: var(--ink-3); padding: 0; }
+
+  /* sections */
+  section { padding-top: 3rem; }
+
+  .head {
+    display: flex; align-items: baseline; gap: 0.85rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.45rem; margin-bottom: 1.4rem;
+  }
+  .head .num {
+    font-family: var(--f-mono); font-size: 0.75rem; font-weight: 600;
+    color: var(--accent); letter-spacing: 0.05em;
+  }
+  h2 {
+    font-family: var(--f-display); font-weight: 600; font-size: 1.4rem;
+    letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--f-display); font-weight: 600; font-size: 0.98rem;
+    margin: 1.9rem 0 0.55rem;
+  }
+
+  p { max-width: var(--col); margin: 0 0 0.95rem; }
+  section > p:last-child { margin-bottom: 0; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  code {
+    font-family: var(--f-mono); font-size: 0.86em;
+    background: var(--sunk); border-radius: 2px; padding: 0.08em 0.32em;
+  }
+
+  ul.prose { max-width: var(--col); padding-left: 1.1rem; margin: 0 0 0.95rem; }
+  ul.prose li { margin-bottom: 0.45rem; }
+
+  /* signal colours */
+  .g-data { color: var(--sig-data); }
+  .g-addr { color: var(--sig-addr); }
+  .g-ctrl { color: var(--sig-ctrl); }
+  .g-gnd  { color: var(--sig-gnd); }
+  .g-pwr  { color: var(--sig-pwr); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem;
+    margin: 0 0 1.3rem; padding: 0; list-style: none;
+    font-family: var(--f-mono); font-size: 0.75rem;
+  }
+  .legend li { display: flex; align-items: center; gap: 0.45rem; }
+  .swatch { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: currentColor; flex: none; }
+
+  /* figures */
+  figure {
+    margin: 0 0 1.4rem; background: var(--surface);
+    border: 1px solid var(--rule-soft); padding: 1.4rem;
+  }
+  .figscroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; min-width: 40rem; height: auto; }
+  figure svg.narrow { min-width: 30rem; }
+  figcaption {
+    font-family: var(--f-mono); font-size: 0.73rem; line-height: 1.55;
+    color: var(--ink-3); margin-top: 1rem; padding-top: 0.85rem;
+    border-top: 1px solid var(--rule-soft); max-width: 46rem;
+  }
+
+  /* tables */
+  .tablewrap { overflow-x: auto; margin-bottom: 1.2rem; }
+  table {
+    border-collapse: collapse; width: 100%; min-width: 36rem;
+    font-family: var(--f-mono); font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+  }
+  th {
+    text-align: left; font-weight: 500; font-size: 0.68rem;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3);
+    padding: 0 0.85rem 0.55rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  td { padding: 0.38rem 0.85rem 0.38rem 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  td.note { font-family: var(--f-body); font-size: 0.92rem; color: var(--ink-2); }
+  td.qty { color: var(--ink); font-weight: 600; }
+  tr.sep td { border-bottom-color: var(--rule); }
+
+  /* steps */
+  ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+  ol.steps > li {
+    counter-increment: step; position: relative;
+    padding: 0 0 1.5rem 3.25rem; border-left: 1px solid var(--rule); margin-left: 0.9rem;
+  }
+  ol.steps > li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute; left: -0.9rem; top: 0;
+    width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    background: var(--ink); color: var(--ground);
+    font-family: var(--f-mono); font-size: 0.72rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.steps h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+  ol.steps p { margin-bottom: 0.6rem; }
+  ol.steps ul { margin: 0 0 0.6rem; padding-left: 1.1rem; max-width: var(--col); }
+  ol.steps li li { margin-bottom: 0.3rem; }
+
+  /* callouts */
+  .warn {
+    max-width: var(--col); background: var(--warn-bg);
+    border: 1px solid var(--warn-edge); padding: 0.85rem 1.05rem;
+    margin: 0 0 1.2rem; font-size: 0.94rem;
+  }
+  .warn b {
+    font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--sig-pwr); display: block; margin-bottom: 0.25rem;
+  }
+
+  .check { max-width: var(--col); margin: 0 0 1.2rem; padding: 0; list-style: none; }
+  .check li {
+    padding: 0.4rem 0 0.4rem 1.6rem; border-bottom: 1px solid var(--rule-soft);
+    position: relative; font-size: 0.95rem;
+  }
+  .check li::before {
+    content: ""; position: absolute; left: 0; top: 0.72rem;
+    width: 0.72rem; height: 0.72rem; border: 1px solid var(--ink-3); border-radius: 2px;
+  }
+
+  dl.symptoms { margin: 0; }
+  .symptom {
+    display: grid; grid-template-columns: 16rem 1fr; gap: 0 1.6rem;
+    padding: 0.8rem 0; border-bottom: 1px solid var(--rule-soft); align-items: baseline;
+  }
+  .symptom dt { font-family: var(--f-mono); font-size: 0.79rem; font-weight: 500; color: var(--ink); }
+  .symptom dd { margin: 0; color: var(--ink-2); font-size: 0.94rem; }
+  @media (max-width: 44rem) { .symptom { grid-template-columns: 1fr; gap: 0.2rem; } }
+
+  footer {
+    margin-top: 3.25rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+    font-family: var(--f-mono); font-size: 0.72rem; line-height: 1.7;
+    color: var(--ink-3); max-width: 46rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="kicker">Bench build · Artix-7 to a 32×16 LED matrix</p>
+    <h1>Nexys 4 DDR to HUB75</h1>
+    <p class="dek">
+      Twelve signals, two buffer chips, one breadboard, and a 5 V supply that
+      does not go anywhere near the FPGA board. Everything below is what it
+      takes to get the <a href="https://github.com/MJoergen/hub75">hub75 core</a>
+      driving a real panel.
+    </p>
+    <ul class="chain">
+      <li>Nexys 4 DDR</li>
+      <li class="arrow">→</li>
+      <li>2 × 74AHCT245</li>
+      <li class="arrow">→</li>
+      <li>HUB75 panel</li>
+      <li class="arrow">←</li>
+      <li>5 V / 3 A</li>
+    </ul>
+  </header>
+
+  <section>
+    <div class="head"><span class="num">01</span><h2>Why the two buffer chips</h2></div>
+
+    <p>
+      The Artix-7's Pmod pins are 3.3 V LVCMOS. The panel's input buffer is a
+      74HC245 running off 5 V, and an HC part guarantees nothing about an input
+      below <strong>3.5 V</strong>. So 3.3 V straight into the panel is out of
+      spec — it works on a short cable at room temperature and then fails at
+      random, which is the worst way for it to fail.
+    </p>
+    <p>
+      A <strong>74AHCT245</strong> fixes it in one part. The HCT input threshold
+      is 2.0 V, so 3.3 V is a solid high; the chip runs off 5 V, so its outputs
+      swing the full 5 V the panel wants. Twelve signals need two of them: one
+      octal carries the eight from Pmod JB, the second carries the four from JC
+      with its spare inputs grounded.
+    </p>
+
+    <div class="warn">
+      <b>The panel's current never touches the breadboard</b>
+      A 32×16 panel draws up to 2 A at full white. Breadboard rails and their
+      spring contacts are not built for that. The 5 V supply feeds the panel
+      <em>directly</em>, through the panel's own power cable, and only a thin tap
+      goes to the breadboard for the two buffer chips — which need about 10 mA
+      between them.
+    </div>
+  </section>
+
+  <section>
+    <div class="head"><span class="num">02</span><h2>The whole picture</h2></div>
+
+    <ul class="legend">
+      <li class="g-data"><span class="swatch"></span>Colour data</li>
+      <li class="g-addr"><span class="swatch"></span>Row address</li>
+      <li class="g-ctrl"><span class="swatch"></span>Control</li>
+      <li class="g-pwr"><span class="swatch"></span>+5 V</li>
+      <li class="g-gnd"><span class="swatch"></span>Ground</li>
+    </ul>
+
+    <figure>
+      <div class="figscroll">
+      <svg viewBox="0 0 840 340" class="narrow" role="img" aria-label="Topology: a PC connects to the Nexys 4 DDR by USB. The Nexys sends twelve 3.3 volt signals to two 74AHCT245 buffers on a breadboard, which send twelve 5 volt signals to the panel. A 5 volt 3 amp supply feeds the panel directly with up to 2 amps and the buffers with about 10 milliamps. All four share a common ground.">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink-2)"></path>
+          </marker>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--sig-pwr)"></path>
+          </marker>
+        </defs>
+
+        <!-- USB -->
+        <text x="16" y="106" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)">USB</text>
+        <path d="M 16 118 H 58" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#a1)" fill="none"></path>
+
+        <!-- Nexys -->
+        <rect x="64" y="70" width="168" height="96" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <text x="148" y="106" font-family="Chivo, sans-serif" font-size="15" font-weight="600" fill="var(--ink)" text-anchor="middle">Nexys 4 DDR</text>
+        <text x="148" y="126" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">Pmod JB + JC</text>
+        <text x="148" y="144" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">3.3 V LVCMOS</text>
+
+        <!-- buffers -->
+        <rect x="316" y="70" width="188" height="96" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <text x="410" y="102" font-family="Chivo, sans-serif" font-size="15" font-weight="600" fill="var(--ink)" text-anchor="middle">2 × 74AHCT245</text>
+        <text x="410" y="122" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">on the breadboard</text>
+        <text x="410" y="140" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">Vcc = 5 V</text>
+
+        <!-- panel -->
+        <rect x="588" y="70" width="188" height="96" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <text x="682" y="102" font-family="Chivo, sans-serif" font-size="15" font-weight="600" fill="var(--ink)" text-anchor="middle">HUB75 panel</text>
+        <text x="682" y="122" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">32 × 16, 1/8 scan</text>
+        <text x="682" y="140" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">up to 2 A</text>
+
+        <!-- signal arrows -->
+        <path d="M 232 118 H 310" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#a1)" fill="none"></path>
+        <text x="271" y="106" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-2)" text-anchor="middle">12 sig</text>
+        <text x="271" y="140" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-3)" text-anchor="middle">3.3 V</text>
+
+        <path d="M 504 118 H 582" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#a1)" fill="none"></path>
+        <text x="543" y="106" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-2)" text-anchor="middle">12 sig</text>
+        <text x="543" y="140" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-3)" text-anchor="middle">5 V</text>
+
+        <!-- supply -->
+        <rect x="316" y="264" width="188" height="58" rx="3" fill="var(--surface)" stroke="var(--sig-pwr)" stroke-width="1.5"></rect>
+        <text x="410" y="288" font-family="Chivo, sans-serif" font-size="14" font-weight="600" fill="var(--sig-pwr)" text-anchor="middle">5 V supply</text>
+        <text x="410" y="307" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-3)" text-anchor="middle">3 A recommended</text>
+
+        <!-- thick feed to panel -->
+        <path d="M 504 280 H 682 V 172" stroke="var(--sig-pwr)" stroke-width="4" marker-end="url(#a2)" fill="none"></path>
+        <text x="596" y="272" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="var(--sig-pwr)" text-anchor="middle">up to 2 A, direct</text>
+
+        <!-- thin feed to buffers -->
+        <path d="M 410 264 V 172" stroke="var(--sig-pwr)" stroke-width="1.5" marker-end="url(#a2)" fill="none"></path>
+        <text x="420" y="220" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--sig-pwr)">~10 mA</text>
+
+        <!-- ground bond -->
+        <path d="M 148 166 V 214 H 682" stroke="var(--sig-gnd)" stroke-width="2" stroke-dasharray="6 4" fill="none"></path>
+        <path d="M 410 214 V 264" stroke="var(--sig-gnd)" stroke-width="2" stroke-dasharray="6 4" fill="none"></path>
+        <circle cx="410" cy="214" r="4" fill="var(--sig-gnd)"></circle>
+        <circle cx="682" cy="214" r="4" fill="var(--sig-gnd)"></circle>
+        <text x="180" y="207" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="var(--sig-gnd)">common ground — all four</text>
+      </svg>
+      </div>
+      <figcaption>
+        The FPGA board stays on USB power throughout; the 5 V supply is only for
+        the panel and the buffers. The dashed line is the one connection people
+        leave out: without a ground shared between the supply, the panel, the
+        breadboard and the Nexys, the twelve signals have no reference and the
+        panel shows noise.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="head"><span class="num">03</span><h2>Parts</h2></div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Qty</th><th>Part</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="qty">1</td><td>Nexys 4 DDR</td>
+            <td class="note">Any Artix-7 board with two free Pmods works; the constraints file is written for this one.</td>
+          </tr>
+          <tr class="sep">
+            <td class="qty">1</td><td>HUB75 panel, 32×16</td>
+            <td class="note">DFRobot DFR0471 or equivalent. 1/8 scan, three address lines.</td>
+          </tr>
+          <tr>
+            <td class="qty">2</td><td>74AHCT245N</td>
+            <td class="note">DIP-20, the through-hole package. 74HCT245N also works — AHCT is simply faster than it needs to be, which is the direction you want the margin in. <strong>Not</strong> 74HC245: the HC input threshold is the whole problem.</td>
+          </tr>
+          <tr>
+            <td class="qty">1</td><td>Breadboard, 830 tie points</td>
+            <td class="note">Or two half-size boards. Both chips must straddle a centre channel.</td>
+          </tr>
+          <tr>
+            <td class="qty">2</td><td>0.1 µF ceramic capacitor</td>
+            <td class="note">One per chip, across pins 10 and 20, as close to the chip as the board allows.</td>
+          </tr>
+          <tr>
+            <td class="qty">1</td><td>100 µF electrolytic, ≥ 10 V</td>
+            <td class="note">Bulk on the breadboard's 5 V rail. Optional, cheap, and it settles the switching noise the panel throws back.</td>
+          </tr>
+          <tr class="sep">
+            <td class="qty">1</td><td>10 kΩ resistor</td>
+            <td class="note">Pull-up on the OE line. See step 05 — this is what keeps the panel dark while the FPGA is unconfigured.</td>
+          </tr>
+          <tr>
+            <td class="qty">1</td><td>5 V DC supply, 3 A</td>
+            <td class="note">2 A is the panel's rating; 3 A means the rail does not sag on a white frame.</td>
+          </tr>
+          <tr>
+            <td class="qty">1</td><td>Barrel jack to screw terminal</td>
+            <td class="note">To land the supply somewhere you can tap. The panel's own power cable goes here too.</td>
+          </tr>
+          <tr class="sep">
+            <td class="qty">1</td><td>HUB75 IDC breakout</td>
+            <td class="note">2×8 IDC socket to 0.1" header. Optional but strongly recommended — it turns thirteen individually miscountable jumper leads into one ribbon plug.</td>
+          </tr>
+          <tr>
+            <td class="qty">~14</td><td>Jumper wires, female–male</td>
+            <td class="note">Female onto the Pmod pins, male into the breadboard. Twelve signals plus two grounds.</td>
+          </tr>
+          <tr>
+            <td class="qty">~15</td><td>Jumper wires, male–male</td>
+            <td class="note">Breadboard to panel header (or to the IDC breakout), plus the power rails and the static pins.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      If you can pick wire colours, use them the way the drawings do: red for
+      5 V, black for ground, and one colour each for the data, address and
+      control groups. Twelve identical jumper wires is how a build takes an
+      evening instead of an hour.
+    </p>
+  </section>
+
+  <section>
+    <div class="head"><span class="num">04</span><h2>Breadboard layout</h2></div>
+
+    <p>
+      Both chips sit across the centre channel, notch to the left. Everything
+      below the chips is the 3.3 V side going back to the Nexys; everything
+      above is the 5 V side going out to the panel.
+    </p>
+
+    <figure>
+      <div class="figscroll">
+      <svg viewBox="0 0 900 640" role="img" aria-label="Breadboard layout. Two 74AHCT245 chips straddle the centre channel. U1 pin 1 DIR to plus 5 volts, pins 2 to 9 are inputs from Pmod JB carrying R1 G1 B1 R2 G2 B2 CLK and LAT, pin 10 to ground, pin 11 to 18 are outputs to HUB75 pins 14 13 7 6 5 3 2 and 1, pin 19 output enable to ground, pin 20 Vcc to plus 5 volts. U2 pin 1 DIR to plus 5 volts, pins 2 to 5 are inputs from Pmod JC carrying A B C and OE with a 10k pull-up on OE, pins 6 to 9 grounded, pin 10 to ground, pins 15 to 18 are outputs to HUB75 pins 15 11 10 and 9, pins 11 to 14 unconnected, pin 19 to ground, pin 20 to plus 5 volts.">
+        <!-- board -->
+        <rect x="14" y="34" width="872" height="574" rx="5" fill="var(--sunk)" stroke="var(--rule)" stroke-width="1.5"></rect>
+
+        <!-- top rails -->
+        <path d="M 34 52 H 866" stroke="var(--sig-pwr)" stroke-width="2.5"></path>
+        <text x="30" y="56" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--sig-pwr)" text-anchor="end">+5V</text>
+        <path d="M 34 70 H 866" stroke="var(--sig-gnd)" stroke-width="2.5"></path>
+        <text x="30" y="74" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--sig-gnd)" text-anchor="end">GND</text>
+
+        <!-- bottom rails -->
+        <path d="M 34 572 H 866" stroke="var(--sig-gnd)" stroke-width="2.5"></path>
+        <text x="30" y="576" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--sig-gnd)" text-anchor="end">GND</text>
+        <path d="M 34 590 H 866" stroke="var(--sig-pwr)" stroke-width="2.5"></path>
+        <text x="30" y="594" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--sig-pwr)" text-anchor="end">+5V</text>
+
+        <!-- centre channel -->
+        <rect x="34" y="303" width="832" height="16" fill="var(--ground)" stroke="var(--rule)" stroke-width="1"></rect>
+
+        <!-- ===== U1 ===== -->
+        <rect x="100" y="286" width="300" height="50" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <path d="M 100 301 A 8 8 0 0 0 100 321" fill="var(--ground)" stroke="var(--ink)" stroke-width="1.5"></path>
+        <circle cx="118" cy="328" r="2.5" fill="var(--ink)"></circle>
+        <text x="250" y="306" font-family="Chivo, sans-serif" font-size="13" font-weight="600" fill="var(--ink)" text-anchor="middle">U1 · 74AHCT245</text>
+        <text x="250" y="322" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-3)" text-anchor="middle">colour data + CLK + LAT</text>
+
+        <!-- U1 bottom pins 1..10 -->
+        <g stroke="var(--ink-2)" stroke-width="1.5">
+          <path d="M 115 336 V 350"></path><path d="M 145 336 V 350"></path><path d="M 175 336 V 350"></path>
+          <path d="M 205 336 V 350"></path><path d="M 235 336 V 350"></path><path d="M 265 336 V 350"></path>
+          <path d="M 295 336 V 350"></path><path d="M 325 336 V 350"></path><path d="M 355 336 V 350"></path>
+          <path d="M 385 336 V 350"></path>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <text transform="rotate(90 115 358)" x="115" y="358" fill="var(--sig-pwr)">1 DIR → +5V rail</text>
+          <text transform="rotate(90 145 358)" x="145" y="358" fill="var(--sig-data)">2 A1 ← JB1 · R1</text>
+          <text transform="rotate(90 175 358)" x="175" y="358" fill="var(--sig-data)">3 A2 ← JB2 · G1</text>
+          <text transform="rotate(90 205 358)" x="205" y="358" fill="var(--sig-data)">4 A3 ← JB3 · B1</text>
+          <text transform="rotate(90 235 358)" x="235" y="358" fill="var(--sig-data)">5 A4 ← JB4 · R2</text>
+          <text transform="rotate(90 265 358)" x="265" y="358" fill="var(--sig-data)">6 A5 ← JB7 · G2</text>
+          <text transform="rotate(90 295 358)" x="295" y="358" fill="var(--sig-data)">7 A6 ← JB8 · B2</text>
+          <text transform="rotate(90 325 358)" x="325" y="358" fill="var(--sig-ctrl)">8 A7 ← JB9 · CLK</text>
+          <text transform="rotate(90 355 358)" x="355" y="358" fill="var(--sig-ctrl)">9 A8 ← JB10 · LAT</text>
+          <text transform="rotate(90 385 358)" x="385" y="358" fill="var(--sig-gnd)">10 GND → GND rail</text>
+        </g>
+
+        <!-- U1 top pins 20..11 -->
+        <g stroke="var(--ink-2)" stroke-width="1.5">
+          <path d="M 115 272 V 286"></path><path d="M 145 272 V 286"></path><path d="M 175 272 V 286"></path>
+          <path d="M 205 272 V 286"></path><path d="M 235 272 V 286"></path><path d="M 265 272 V 286"></path>
+          <path d="M 295 272 V 286"></path><path d="M 325 272 V 286"></path><path d="M 355 272 V 286"></path>
+          <path d="M 385 272 V 286"></path>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <text transform="rotate(-90 115 264)" x="115" y="264" fill="var(--sig-pwr)">20 VCC → +5V rail</text>
+          <text transform="rotate(-90 145 264)" x="145" y="264" fill="var(--sig-gnd)">19 /OE → GND rail</text>
+          <text transform="rotate(-90 175 264)" x="175" y="264" fill="var(--sig-data)">18 B1 → panel 1 · R1</text>
+          <text transform="rotate(-90 205 264)" x="205" y="264" fill="var(--sig-data)">17 B2 → panel 2 · G1</text>
+          <text transform="rotate(-90 235 264)" x="235" y="264" fill="var(--sig-data)">16 B3 → panel 3 · B1</text>
+          <text transform="rotate(-90 265 264)" x="265" y="264" fill="var(--sig-data)">15 B4 → panel 5 · R2</text>
+          <text transform="rotate(-90 295 264)" x="295" y="264" fill="var(--sig-data)">14 B5 → panel 6 · G2</text>
+          <text transform="rotate(-90 325 264)" x="325" y="264" fill="var(--sig-data)">13 B6 → panel 7 · B2</text>
+          <text transform="rotate(-90 355 264)" x="355" y="264" fill="var(--sig-ctrl)">12 B7 → panel 13 · CLK</text>
+          <text transform="rotate(-90 385 264)" x="385" y="264" fill="var(--sig-ctrl)">11 B8 → panel 14 · LAT</text>
+        </g>
+
+        <!-- ===== U2 ===== -->
+        <rect x="500" y="286" width="300" height="50" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <path d="M 500 301 A 8 8 0 0 0 500 321" fill="var(--ground)" stroke="var(--ink)" stroke-width="1.5"></path>
+        <circle cx="518" cy="328" r="2.5" fill="var(--ink)"></circle>
+        <text x="650" y="306" font-family="Chivo, sans-serif" font-size="13" font-weight="600" fill="var(--ink)" text-anchor="middle">U2 · 74AHCT245</text>
+        <text x="650" y="322" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-3)" text-anchor="middle">row address + OE</text>
+
+        <!-- U2 bottom pins -->
+        <g stroke="var(--ink-2)" stroke-width="1.5">
+          <path d="M 515 336 V 350"></path><path d="M 545 336 V 350"></path><path d="M 575 336 V 350"></path>
+          <path d="M 605 336 V 350"></path><path d="M 635 336 V 350"></path><path d="M 665 336 V 350"></path>
+          <path d="M 695 336 V 350"></path><path d="M 725 336 V 350"></path><path d="M 755 336 V 350"></path>
+          <path d="M 785 336 V 350"></path>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <text transform="rotate(90 515 358)" x="515" y="358" fill="var(--sig-pwr)">1 DIR → +5V rail</text>
+          <text transform="rotate(90 545 358)" x="545" y="358" fill="var(--sig-addr)">2 A1 ← JC1 · A</text>
+          <text transform="rotate(90 575 358)" x="575" y="358" fill="var(--sig-addr)">3 A2 ← JC2 · B</text>
+          <text transform="rotate(90 605 358)" x="605" y="358" fill="var(--sig-addr)">4 A3 ← JC3 · C</text>
+          <text transform="rotate(90 635 358)" x="635" y="358" fill="var(--sig-ctrl)">5 A4 ← JC4 · OE  +10k↑3V3</text>
+          <text transform="rotate(90 665 358)" x="665" y="358" fill="var(--sig-gnd)">6 A5 → GND rail</text>
+          <text transform="rotate(90 695 358)" x="695" y="358" fill="var(--sig-gnd)">7 A6 → GND rail</text>
+          <text transform="rotate(90 725 358)" x="725" y="358" fill="var(--sig-gnd)">8 A7 → GND rail</text>
+          <text transform="rotate(90 755 358)" x="755" y="358" fill="var(--sig-gnd)">9 A8 → GND rail</text>
+          <text transform="rotate(90 785 358)" x="785" y="358" fill="var(--sig-gnd)">10 GND → GND rail</text>
+        </g>
+
+        <!-- U2 top pins -->
+        <g stroke="var(--ink-2)" stroke-width="1.5">
+          <path d="M 515 272 V 286"></path><path d="M 545 272 V 286"></path><path d="M 575 272 V 286"></path>
+          <path d="M 605 272 V 286"></path><path d="M 635 272 V 286"></path><path d="M 665 272 V 286"></path>
+          <path d="M 695 272 V 286"></path><path d="M 725 272 V 286"></path><path d="M 755 272 V 286"></path>
+          <path d="M 785 272 V 286"></path>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <text transform="rotate(-90 515 264)" x="515" y="264" fill="var(--sig-pwr)">20 VCC → +5V rail</text>
+          <text transform="rotate(-90 545 264)" x="545" y="264" fill="var(--sig-gnd)">19 /OE → GND rail</text>
+          <text transform="rotate(-90 575 264)" x="575" y="264" fill="var(--sig-addr)">18 B1 → panel 9 · A</text>
+          <text transform="rotate(-90 605 264)" x="605" y="264" fill="var(--sig-addr)">17 B2 → panel 10 · B</text>
+          <text transform="rotate(-90 635 264)" x="635" y="264" fill="var(--sig-addr)">16 B3 → panel 11 · C</text>
+          <text transform="rotate(-90 665 264)" x="665" y="264" fill="var(--sig-ctrl)">15 B4 → panel 15 · OE</text>
+          <text transform="rotate(-90 695 264)" x="695" y="264" fill="var(--ink-3)">14 B5 — n/c</text>
+          <text transform="rotate(-90 725 264)" x="725" y="264" fill="var(--ink-3)">13 B6 — n/c</text>
+          <text transform="rotate(-90 755 264)" x="755" y="264" fill="var(--ink-3)">12 B7 — n/c</text>
+          <text transform="rotate(-90 785 264)" x="785" y="264" fill="var(--ink-3)">11 B8 — n/c</text>
+        </g>
+
+        <!-- decoupling notes -->
+        <text x="100" y="608" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-3)">0.1 µF across U1 pins 10 &amp; 20</text>
+        <text x="500" y="608" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink-3)">0.1 µF across U2 pins 10 &amp; 20</text>
+      </svg>
+      </div>
+      <figcaption>
+        Pin numbering is the DIP convention: notch left, pin 1 at the bottom
+        left, counting anticlockwise, so pin 20 sits directly above pin 1. Note
+        the B side runs backwards — pin 18 is B1 and pin 11 is B8 — which is the
+        single most common place to get a 245 wrong.
+      </figcaption>
+    </figure>
+
+    <h3>Pmod pin numbering</h3>
+    <p>
+      A Pmod header is 2×6. The top row is pins 1–4 signal, 5 ground, 6 3.3 V;
+      the bottom row is 7–10 signal, 11 ground, 12 3.3 V. So JB's eight signals
+      are 1, 2, 3, 4, 7, 8, 9, 10 — <strong>not</strong> 1 through 8. Take your
+      ground from pin 5 or 11, and the 10 kΩ pull-up's top end from JC pin 6.
+    </p>
+  </section>
+
+  <section>
+    <div class="head"><span class="num">05</span><h2>Build it</h2></div>
+
+    <ol class="steps">
+      <li>
+        <h3>Everything off</h3>
+        <p>
+          Nexys unplugged from USB, 5 V supply unplugged from the wall. You will
+          be moving wires next to a rail that can push 3 A.
+        </p>
+      </li>
+
+      <li>
+        <h3>Seat the chips and the rails</h3>
+        <p>
+          Both 74AHCT245s across the centre channel, notch to the left, with a
+          few free rows between them. Then bridge the breadboard's power rails
+          if your board splits them at the middle, and drop a 0.1 µF cap across
+          pins 10 and 20 of each chip — physically across, not off at the end of
+          the rail.
+        </p>
+      </li>
+
+      <li>
+        <h3>Wire the static pins</h3>
+        <p>Four per chip, and they never change:</p>
+        <ul>
+          <li><code>pin 20</code> (VCC) and <code>pin 1</code> (DIR) → <span class="g-pwr">+5 V rail</span>. DIR high selects A→B, which is the direction we want.</li>
+          <li><code>pin 10</code> (GND) and <code>pin 19</code> (/OE) → <span class="g-gnd">GND rail</span>. /OE low enables the outputs permanently.</li>
+          <li>On U2 only: <code>pins 6, 7, 8, 9</code> → <span class="g-gnd">GND rail</span>. Unused CMOS inputs must not float; floating ones oscillate and heat the chip.</li>
+        </ul>
+      </li>
+
+      <li>
+        <h3>Add the OE pull-up</h3>
+        <p>
+          10 kΩ from <code>U2 pin 5</code> to <strong>JC pin 6 (3.3 V)</strong>,
+          not to the 5 V rail — pulling an unconfigured FPGA pin above its own
+          supply is how you find its ESD clamp.
+        </p>
+        <p>
+          This is the part that stops the panel flashing garbage between power-on
+          and configuration. OE is active low, the FPGA's pins are high-Z until
+          the bitstream loads, and without the pull-up the buffer input floats:
+          the panel could come up fully lit at 2 A on an undriven row. With it,
+          the panel is blanked until the FPGA says otherwise.
+        </p>
+      </li>
+
+      <li>
+        <h3>Ground the Nexys to the breadboard</h3>
+        <p>
+          JB pin 5 → GND rail, and JC pin 5 → GND rail. Do this before the signal
+          wires, so that there is never a moment where a signal has a path but
+          its return does not.
+        </p>
+      </li>
+
+      <li>
+        <h3>Twelve signal wires in</h3>
+        <p>
+          Pmod to the A side, per the drawing: JB1–4 and JB7–10 to U1 pins 2–9,
+          JC1–4 to U2 pins 2–5. Count twice — the JB numbering skips 5 and 6.
+        </p>
+      </li>
+
+      <li>
+        <h3>Twelve signal wires out</h3>
+        <p>
+          B side to the panel's <strong>input</strong> header — the one marked
+          with an arrow pointing away from it, usually <code>JIN1</code>. Watch
+          the reversed B numbering: pin 18 is B1, pin 11 is B8. Panel pin 12 (D)
+          stays unconnected; this is a 1/8 scan panel with three address lines.
+        </p>
+        <p>
+          Take at least one ground across as well, from the GND rail to panel pin
+          4, 8 or 16.
+        </p>
+      </li>
+
+      <li>
+        <h3>Power, in the right order</h3>
+        <ul>
+          <li>5 V supply → the panel's own power connector, <strong>directly</strong>, with its supplied cable.</li>
+          <li>A thin pair from the same supply terminals → the breadboard's +5 V and GND rails.</li>
+          <li>100 µF across the breadboard rails, watching the polarity.</li>
+        </ul>
+        <p>
+          The supply's ground now reaches the panel, the breadboard and — through
+          step 05 — the Nexys. That is the common ground the first drawing marks.
+        </p>
+      </li>
+
+      <li>
+        <h3>Check before you energise anything</h3>
+        <ul class="check">
+          <li>Continuity: +5 V rail to GND rail reads open, not a few ohms.</li>
+          <li>Nothing connects Pmod pin 6 or 12 (3.3 V) to the 5 V rail — except through the 10 kΩ.</li>
+          <li>Both chips: pin 1 high, pin 19 low, pin 20 on 5 V, pin 10 on ground.</li>
+          <li>Both chips seated across the channel, not shorted along one row.</li>
+          <li>The panel lead is in the <em>input</em> header.</li>
+          <li>The electrolytic's stripe is on the ground side.</li>
+        </ul>
+      </li>
+
+      <li>
+        <h3>Power up and program</h3>
+        <p>
+          5 V supply on first — the panel should stay <strong>dark</strong>. If
+          it lights up before the FPGA is programmed, kill it and re-check step
+          04. Then plug in the Nexys over USB and load the bitstream:
+        </p>
+        <ul>
+          <li><code>make bit</code>, then Vivado's hardware manager; or</li>
+          <li><code>openFPGALoader -b nexys_a7_100 build/top_nexys4ddr.bit</code></li>
+        </ul>
+        <p>
+          Expect LD0 blinking about once a second, LD1 lit, and a slowly drifting
+          colour gradient across all 512 pixels.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="head"><span class="num">06</span><h2>When it doesn't work</h2></div>
+
+    <dl class="symptoms">
+      <div class="symptom">
+        <dt>Panel dark, LD0 blinking</dt>
+        <dd>The core is running, so this is the wiring. Check OE first (U2 pin 5 → pin 15 → panel 15): a stuck-high OE blanks everything while the rest of the design works perfectly.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Panel dark, LD0 not blinking</dt>
+        <dd>The bitstream is not loaded or the board is not running. Nothing to do with the panel yet.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Lit before programming</dt>
+        <dd>The OE pull-up is missing, on the wrong pin, or tied to 5 V instead of 3.3 V.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Image mirrored left to right</dt>
+        <dd>Your panel fills its shift register from the other end. Count <code>col</code> downwards in <code>hub75_scan.vhd</code>; the header says where.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Split or doubled vertically</dt>
+        <dd>An address line. A, B, C must reach panel pins 9, 10, 11 in that order — and check none of them landed on pin 12.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Only one half works</dt>
+        <dd>R1/G1/B1 and R2/G2/B2 are crossed, or U1's B side got read left to right instead of 18-down-to-11.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Colours wrong but stable</dt>
+        <dd>Two data wires swapped. The order across U1 is R1 G1 B1 R2 G2 B2 on pins 2–7.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Works dim, garbles when bright</dt>
+        <dd>The 5 V rail is sagging. Either the supply is undersized or the panel's current is going through the breadboard.</dd>
+      </div>
+      <div class="symptom">
+        <dt>Intermittent, worse on long wires</dt>
+        <dd>Ringing on CLK. Shorten the leads first; 33–100 Ω in series with CLK and LAT at the buffer output is the next step.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <footer>
+    Companion to <a href="https://github.com/MJoergen/hub75">MJoergen/hub75</a>.
+    Pin assignments match <code>hw/nexys4ddr.xdc</code> and
+    <code>src/top_nexys4ddr.vhd</code> in that repository; if you change one,
+    change both. The Pmod package pins in the XDC are transcribed from
+    Digilent's master constraints — check them against the file for your board
+    revision before the first run.
+  </footer>
+
+</div>

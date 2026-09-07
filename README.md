@@ -60,6 +60,9 @@ pattern_gen ──► hub75 ─┬─► frame_buffer ─┬─► sdp_ram (uppe
 
 ## Wiring
 
+**[Full breadboard build guide](docs/wiring.html)** — parts list, drawings and a
+step-by-step, including the two 74AHCT245 level shifters this needs.
+
 Twelve signals over two Pmod headers. HUB75 pin 12 (`D`, the fourth address
 line) is unused: this is a 1/8 scan panel and has only three.
 
