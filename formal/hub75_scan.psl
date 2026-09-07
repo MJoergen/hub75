@@ -1,0 +1,101 @@
+vunit i_hub75_scan(hub75_scan(synthesis))
+{
+   -- Additional signals used during formal verification. The two delayed copies
+   -- reconstruct the panel's own view: it acts on the EDGES of hub75_clk_o and
+   -- hub75_lat_o, so the properties below have to as well.
+   signal f_clk_d  : std_logic := '0';
+   signal f_lat_d  : std_logic := '0';
+   signal f_pulses : natural range 0 to 2*G_COLS := 0;
+
+
+   -- set all declarations to run on clk_i
+   default clock is rising_edge(clk_i);
+
+
+   -- The design only means anything after a reset, so the environment supplies
+   -- one before anything is checked.
+   f_reset : restrict {rst_i[*3]; (not rst_i)[*]};
+
+
+   -- Count the shift pulses the panel would see between two latches. The
+   -- counter is deliberately given twice the range it should ever need, so that
+   -- an overrun shows up as a failing assertion rather than as a silent wrap.
+   p_track : process (clk_i)
+   begin
+      if rising_edge(clk_i) then
+         f_clk_d <= hub75_clk_o;
+         f_lat_d <= hub75_lat_o;
+
+         if hub75_clk_o = '1' and f_clk_d = '0' then
+            f_pulses <= f_pulses + 1;
+         end if;
+
+         if hub75_lat_o = '1' and f_lat_d = '0' then
+            f_pulses <= 0;
+         end if;
+
+         if rst_i = '1' then
+            f_clk_d  <= '0';
+            f_lat_d  <= '0';
+            f_pulses <= 0;
+         end if;
+      end if;
+   end process p_track;
+
+
+   -----------------------------
+   -- ASSERTIONS ABOUT OUTPUTS
+   -----------------------------
+
+   -- Reset must leave the panel dark. This is the safety property that makes a
+   -- reset unconditionally safe to assert: no row is being sourced, so no LED
+   -- and no driver is left carrying current in an unknown state.
+   f_reset_blanks : assert always {rst_i} |=> {hub75_oe_n_o};
+
+   -- Latching while the panel is lit shows the row being replaced. The whole
+   -- blank/latch/unblank ordering exists to prevent exactly this.
+   f_latch_is_blanked : assert always hub75_lat_o = '1' -> hub75_oe_n_o = '1';
+
+   -- Shifting while the latch is open writes through to the output latches and
+   -- streaks the row across the panel.
+   f_no_shift_while_latched : assert always not (hub75_clk_o = '1' and hub75_lat_o = '1');
+
+   -- The row address may only move while the panel is blanked. Moving it while
+   -- lit shows one row's data on another row, which is the classic symptom of
+   -- an address line changed a cycle too early.
+   f_addr_stable_while_lit : assert always {hub75_oe_n_o = '0' and rst_i = '0'} |=>
+                                          {hub75_oe_n_o = '1' or stable(hub75_a_o)};
+
+   -- Never more shift pulses than the panel has columns: one extra pulse
+   -- rotates the whole row by one pixel.
+   --
+   -- This one holds under bmc but NOT under k-induction, which is why the sby
+   -- file has no prove task. Induction is free to start from a state where
+   -- f_pulses already sits at G_COLS while the scanner is half way through a
+   -- row, and the next pulse then breaks it. Closing it needs an invariant
+   -- tying f_pulses back to the design's own col counter -- something along the
+   -- lines of "in shift_st, f_pulses = col - 2" -- and that relation has a
+   -- phase offset inside the tick window (col advances on the tick, f_pulses on
+   -- the clk edge after pclk rises), so it is not the one-liner it looks like.
+   -- Left open deliberately rather than stated wrongly.
+   f_pulse_budget : assert always f_pulses <= G_COLS;
+
+   -- And never fewer, either: a latch always follows a full row of pixels.
+   f_latch_after_full_row : assert always {hub75_lat_o = '1' and f_lat_d = '0' and rst_i = '0'} |->
+                                          {f_pulses = G_COLS};
+
+
+   -----------------------------
+   -- COVER STATEMENTS
+   -----------------------------
+
+   -- The three phases are actually reachable, i.e. the assertions above are not
+   -- passing vacuously on a design that never latches or never lights up.
+   f_cover_latch : cover {not hub75_lat_o; hub75_lat_o};
+
+   f_cover_display : cover {hub75_oe_n_o; not hub75_oe_n_o};
+
+   -- The scan advances to another row rather than sitting on row zero.
+   f_cover_row_advance : cover {hub75_a_o = 0; hub75_a_o /= 0};
+
+} -- vunit i_hub75_scan(hub75_scan(synthesis))

@@ -1,0 +1,21 @@
+[tasks]
+cover
+bmc
+
+[options]
+cover: mode cover
+cover: depth 80
+bmc: mode bmc
+bmc: depth 60
+
+[engines]
+smtbmc
+
+[script]
+ghdl --std=08 -gG_COLS=4 -gG_ROWS=4 -gG_COLOR_BITS=2 -gG_CLK_DIV=2 -gG_BASE_TICKS=2 hub75_pkg.vhd hub75_scan.vhd hub75_scan.psl -e hub75_scan
+prep -top hub75_scan
+
+[files]
+hub75_scan.psl
+../src/hub75_pkg.vhd
+../src/hub75_scan.vhd

@@ -1,0 +1,25 @@
+# Vivado build script for the Nexys 4 DDR.
+#
+# Run with:  make bit      (or: vivado -mode tcl -source hw/build.tcl)
+#
+# This has NOT been run: the machine this was written on has no Vivado
+# installed. The VHDL is verified by simulation and by SymbiYosys, and the
+# structure below follows the same shape as the qnice_cpu flow, but treat the
+# first run as something to watch rather than something to trust.
+
+set part xc7a100tcsg324-1
+
+read_vhdl -vhdl2008 [glob src/*.vhd]
+read_xdc hw/nexys4ddr.xdc
+
+synth_design -top top_nexys4ddr -part $part -flatten_hierarchy rebuilt
+opt_design
+place_design
+phys_opt_design
+route_design
+
+report_timing_summary -file build/timing.txt
+report_utilization    -file build/utilization.txt
+
+write_bitstream -force build/top_nexys4ddr.bit
+exit
